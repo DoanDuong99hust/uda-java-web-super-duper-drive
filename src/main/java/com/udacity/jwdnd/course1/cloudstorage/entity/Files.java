@@ -4,11 +4,19 @@ public class Files {
     private Integer fileId;
     private String fileName;
     private String contentType;
-    private String fileSize;
-    private Byte[] fileData;
+    private Long fileSize;
+    private byte[] fileData;
     private Integer userId;
 
     public Files() {
+    }
+
+    public Files(String fileName, String contentType, Long fileSize, byte[] fileData, Integer userId) {
+        this.fileName = fileName;
+        this.contentType = contentType;
+        this.fileSize = fileSize;
+        this.fileData = fileData;
+        this.userId = userId;
     }
 
     public Integer getFileId() {
@@ -35,19 +43,19 @@ public class Files {
         this.contentType = contentType;
     }
 
-    public String getFileSize() {
+    public Long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(String fileSize) {
+    public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
 
-    public Byte[] getFileData() {
+    public byte[] getFileData() {
         return fileData;
     }
 
-    public void setFileData(Byte[] fileData) {
+    public void setFileData(byte[] fileData) {
         this.fileData = fileData;
     }
 
