@@ -1,25 +1,35 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.constant.CommonConstant;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Files;
+import com.udacity.jwdnd.course1.cloudstorage.entity.Result;
+import com.udacity.jwdnd.course1.cloudstorage.entity.Users;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
+import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 @Controller
 @RequestMapping("/file")
 public class FileController {
 
     private final FileMapper fileMapper;
+    private final UserMapper userMapper;
 
-    public FileController(FileMapper fileMapper) {
+    public FileController(FileMapper fileMapper, UserMapper userMapper) {
         this.fileMapper = fileMapper;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -31,28 +41,42 @@ public class FileController {
      * @return
      */
     @PostMapping("/upload")
-    public void upload(@RequestParam("fileUpload") MultipartFile inputFile, Model model) throws IOException {
+    public ModelAndView upload(@RequestParam("fileUpload") MultipartFile inputFile,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) throws IOException {
+        Result result;
         InputStream fileInputStream = inputFile.getInputStream();
-        //TODO: To get userId after applying security
-        fileMapper.insert(new Files(inputFile.getName(), inputFile.getContentType(), inputFile.getSize(),
-                fileInputStream.readAllBytes(), 1));
+        try {
+            Users user = userMapper.findByUsername(authentication.getName());
+            Files file = fileMapper.findByName(inputFile.getOriginalFilename());
+            if (file == null) {
+                fileMapper.insert(new Files(inputFile.getOriginalFilename(), inputFile.getContentType(), inputFile.getSize(),
+                        fileInputStream.readAllBytes(), user.getUserId()));
+                result = new Result(true, CommonConstant.SUCCESSFUL_SAVED_MESSAGE, "/home");
+            } else {
+                result = new Result(false, "Filename already existed!", "/home");
+            }
+        } catch (Exception e) {
+            result = new Result(false, e.getMessage(), "/home");
+        }
+
+        redirectAttributes.addFlashAttribute("result", result);
+        return new ModelAndView("redirect:/result");
     }
 
-    @GetMapping("/view-detail")
-    public String view(Model model) {
-        List<Files> files = fileMapper.findAll();
-        model.addAttribute("files", files);
-        return "home";
+    @GetMapping("/download/{id}")
+    public ResponseEntity<ByteArrayResource> download(@PathVariable Integer id) {
+            Files file = fileMapper.findById(id);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                    .body(new ByteArrayResource(file.getFileData()));
     }
 
-    @GetMapping("/download")
-    public void download(Model model) {
-
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public void delete(@PathVariable Integer id) {
-
+    @PostMapping("/delete/{id}")
+    public ModelAndView delete(@PathVariable Integer id) {
+        fileMapper.delete(id);
+        return new ModelAndView("redirect:/home");
     }
 
 }

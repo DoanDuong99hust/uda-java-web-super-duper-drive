@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -37,7 +36,7 @@ public class EncryptionService {
 
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
+            SecretKey secretKey = new SecretKeySpec(convertKeyStringToByteArray(key), "AES");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             decryptedValue = cipher.doFinal(Base64.getDecoder().decode(data));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException
@@ -45,6 +44,32 @@ public class EncryptionService {
             logger.error(e.getMessage());
         }
 
-        return new String(decryptedValue);
+        return decryptedValue != null ? new String(decryptedValue): "";
+    }
+
+    public SecretKey generateRandomKey(String keyType, int keyLength) throws NoSuchAlgorithmException {
+        KeyGenerator keyGen = KeyGenerator.getInstance(keyType);
+        keyGen.init(keyLength);
+        return keyGen.generateKey();
+    }
+
+    public String convertKeyByteArrayToString(byte[] keyArr) {
+        StringBuilder keyString = new StringBuilder();
+        for (byte byteItem: keyArr) {
+            keyString.append(byteItem);
+            keyString.append(":");
+        }
+        return keyString.toString();
+    }
+
+    public byte[] convertKeyStringToByteArray(String key) {
+        byte[] keyByteArray = new byte[32];
+        if (key != null) {
+            String[] keyItem = key.split(":");
+            for (int i = 0; i < keyItem.length; i++) {
+                keyByteArray[i] = Byte.parseByte(keyItem[i]);
+            }
+        }
+        return keyByteArray;
     }
 }

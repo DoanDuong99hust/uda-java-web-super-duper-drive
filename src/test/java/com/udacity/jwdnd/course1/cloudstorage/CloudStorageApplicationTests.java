@@ -23,7 +23,7 @@ class CloudStorageApplicationTests {
 
 	@BeforeAll
 	static void beforeAll() {
-		WebDriverManager.chromedriver().setup();
+		WebDriverManager.chromedriver().clearDriverCache().setup();
 	}
 
 	@BeforeEach

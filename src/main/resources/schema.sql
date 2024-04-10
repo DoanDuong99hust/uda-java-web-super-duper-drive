@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS USERS (
   lastname VARCHAR(20)
 );
 
+insert into users(username, salt, password, firstname, lastname)
+values('admin', '#$%^&*(', '1', 'duong','doan');
+
 CREATE TABLE IF NOT EXISTS NOTES (
     noteid INT PRIMARY KEY auto_increment,
     notetitle VARCHAR(20),

@@ -18,9 +18,15 @@
             <div id="contentDiv" style="clear: right;">
                 <nav style="clear: right;">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
-                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
-                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
+                        <a class="nav-item nav-link active" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab" aria-controls="nav-files" aria-selected="true">
+                            Files
+                        </a>
+                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">
+                            Notes
+                        </a>
+                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials" role="tab" aria-controls="nav-credentials" aria-selected="false">
+                            Credentials
+                        </a>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -50,9 +56,13 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="file : ${files}">
-                                    <td>
-                                        <a th:id="${file.getFileId()}" target="_blank" class="btn btn-success">View</a>
-                                        <a th:id="${file.getFileId()}" class="btn btn-danger">Delete</a>
+                                    <td th:style="'display: flex;'">
+                                        <form th:action="@{'/file/download/'+ ${file.getFileId()}}" method="get">
+                                            <button type="submit" class="btn btn-success">View</button>
+                                        </form>
+                                        <form th:action="@{'/file/delete/' + ${file.getFileId()}}" method="post">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
                                     </td>
                                     <th th:text="${file.getFileName()}" scope="row">ExampleFile.txt</th>
                                 </tr>
@@ -75,13 +85,20 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <button type="button" class="btn btn-success">Edit</button>
-                                            <a class="btn btn-danger">Delete</a>
+                                    <tr th:each="note : ${notes}">
+                                        <td th:style="'display: flex;'">
+                                            <button type="button"
+                                                    th:data-id="|${note.getNoteId()}|"
+                                                    th:data-title="${note.getNoteTitle()}"
+                                                    th:data-description="${note.getNoteDescription()}"
+                                                    onclick="showNoteModal(this.getAttribute('data-id'), this.getAttribute('data-title'), this.getAttribute('data-description'))"
+                                                    class="btn btn-success">Edit</button>
+                                            <form th:action="@{'/note/delete/' + ${note.getNoteId()}}" method="post">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
                                         </td>
-                                        <th scope="row">Example Note Title</th>
-                                        <td>Example Note Description </td>
+                                        <th th:text="${note.getNoteTitle()}" scope="row">Example Note Title</th>
+                                        <td th:text="${note.getNoteDescription()}">Example Note Description </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -97,7 +114,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
+                                        <form th:action="@{'/note/create-update'}" method="POST">
                                             <input type="hidden" name="noteId" id="notes-id">
                                             <div class="form-group">
                                                 <label for="notes-title" class="col-form-label">Title</label>
@@ -112,7 +129,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">Save changes</button>
+                                        <button type="submit" class="btn btn-primary" onclick="$('#noteSubmit').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>
@@ -124,7 +141,7 @@
                         </button>
 
                         <div class="table-responsive">
-                            <table class="table table-striped" th:object="${credentials}" id="credentialTable">
+                            <table class="table table-striped" id="credentialTable">
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
@@ -134,14 +151,23 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>
-                                        <button type="button" class="btn btn-success">Edit</button>
-                                        <a class="btn btn-danger">Delete</a>
+                                <tr th:each="credential : ${credentials}">
+                                    <td th:style="'display: flex;'">
+                                        <button th:data-id="|${credential.getCredentialId()}|"
+                                                th:data-url="|${credential.getUrl()}|"
+                                                th:data-username="|${credential.getUsername()}|"
+                                                th:data-password="|${EncryptionService.decryptValue(credential.getPassword(), credential.getKey())}|"
+                                                onclick="showCredentialModal(this.getAttribute('data-id'), this.getAttribute('data-url'),
+                                                this.getAttribute('data-username'), this.getAttribute('data-password'))"
+                                                type="button"
+                                                class="btn btn-success">Edit</button>
+                                        <form th:action="@{'/credential/delete/' + ${credential.getCredentialId()}}" method="post">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
                                     </td>
-                                    <th scope="row">Example Credential URL</th>
-                                    <td>Example Credential Username</td>
-                                    <td>Example Credential Password</td>
+                                    <th th:text="${credential.getUrl()}" scope="row">Example Credential URL</th>
+                                    <td th:text="${credential.getUsername()}">Example Credential Username</td>
+                                    <td th:text="${credential.getPassword()}">Example Credential Password</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -157,7 +183,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
+                                        <form th:action="@{'/credential/create-update'}" method="POST">
                                             <input type="hidden" name="credentialId" id="credentials-id">
                                             <div class="form-group">
                                                 <label for="credentials-url" class="col-form-label">URL</label>
@@ -176,7 +202,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">Save changes</button>
+                                        <button type="submit" class="btn btn-primary" onclick="$('#credentialSubmit').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>

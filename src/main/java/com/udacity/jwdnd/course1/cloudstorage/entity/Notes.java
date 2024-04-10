@@ -9,6 +9,12 @@ public class Notes {
     public Notes() {
     }
 
+    public Notes(String noteTitle, String noteDescription, Integer userId) {
+        this.noteTitle = noteTitle;
+        this.noteDescription = noteDescription;
+        this.userId = userId;
+    }
+
     public Integer getNoteId() {
         return noteId;
     }

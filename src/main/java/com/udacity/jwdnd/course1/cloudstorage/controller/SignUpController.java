@@ -13,29 +13,24 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.security.SecureRandom;
-import java.util.Arrays;
+import javax.servlet.http.HttpServletRequest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.UUID;
 
 @Controller
-public class CloudStorageController {
+public class SignUpController {
 
     private final UserMapper userMapper;
     private final CredentialMapper credentialMapper;
     private final HashService hashService;
     private final EncryptionService encryptionService;
 
-    public CloudStorageController(UserMapper userMapper, HashService hashService, CredentialMapper credentialMapper, EncryptionService encryptionService) {
+    public SignUpController(UserMapper userMapper, CredentialMapper credentialMapper, HashService hashService, EncryptionService encryptionService) {
         this.userMapper = userMapper;
-        this.hashService = hashService;
         this.credentialMapper = credentialMapper;
+        this.hashService = hashService;
         this.encryptionService = encryptionService;
-    }
-
-    @GetMapping("/login")
-    public String login(@ModelAttribute("credentials") Credentials credentials) {
-        return "login";
     }
 
     @GetMapping("/sign-up")
@@ -47,7 +42,8 @@ public class CloudStorageController {
     }
 
     @PostMapping("/sign-up")
-    public ModelAndView processSignUp(@ModelAttribute("users") Users users, Model model) {
+    public ModelAndView processSignUp(@ModelAttribute("users") Users users, Model model,
+                                      HttpServletRequest request) throws NoSuchAlgorithmException {
         String username = users.getUsername();
         String password = users.getPassword();
         String firstName = users.getFirstname();
@@ -65,27 +61,15 @@ public class CloudStorageController {
             String hashedPassword = hashService.getHashedValue(password, salt);
             Integer userId = userMapper.insert(new Users(username, salt, hashedPassword, firstName, lastName));
 
-            SecureRandom random = new SecureRandom();
-            byte[] key = new byte[32];
-            random.nextBytes(key);
-            String encryptedValue = encryptionService.encryptValue(password, key);
-            credentialMapper.create(new Credentials("login", username, Arrays.toString(key), encryptedValue, userId));
+            byte[] keyByte = encryptionService.generateRandomKey("AES", 256).getEncoded();
+            String encryptedValue = encryptionService.encryptValue(password, keyByte);
+            credentialMapper.create(new Credentials(request.getRequestURL().toString(), username, encryptionService.convertKeyByteArrayToString(keyByte), encryptedValue, userId));
             isSignUpSuccessful = true;
         }
         model.addAttribute("isSignUpSuccessful", isSignUpSuccessful);
         model.addAttribute("isSignUpFail", isSignUpFail);
         model.addAttribute("errMessage", errMessage);
 
-        return new ModelAndView("signup");
-    }
-
-    @GetMapping("/home")
-    public String home() {
-        return "home";
-    }
-
-    @GetMapping("/logout")
-    public String logout() {
-        return "redirect:/login";
+        return new ModelAndView(isSignUpSuccessful ? "redirect:/login" : "signup");
     }
 }
