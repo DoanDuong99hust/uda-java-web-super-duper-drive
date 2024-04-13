@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import java.io.File;
+import java.util.Set;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
@@ -51,11 +54,15 @@ class CloudStorageApplicationTests {
 	private void doMockSignUp(String firstName, String lastName, String userName, String password){
 		// Create a dummy account for logging in later.
 
+		// Switch to sign-up page
+		driver.get("http://localhost:" + this.port + "/login");
+		WebElement switchToSignUpLink = driver.findElement(By.id("switch-to-sign-up"));
+		switchToSignUpLink.click();
+
 		// Visit the sign-up page.
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
-		driver.get("http://localhost:" + this.port + "/signup");
 		webDriverWait.until(ExpectedConditions.titleContains("Sign Up"));
-		
+
 		// Fill out credentials
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inputFirstName")));
 		WebElement inputFirstName = driver.findElement(By.id("inputFirstName"));
@@ -86,7 +93,11 @@ class CloudStorageApplicationTests {
 		// You may have to modify the element "success-msg" and the sign-up 
 		// success message below depening on the rest of your code.
 		*/
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+
+		WebElement switchToLogin = driver.findElement(By.id("switch-to-login"));
+		switchToLogin.click();
 	}
 
 	
@@ -131,10 +142,10 @@ class CloudStorageApplicationTests {
 	 * https://review.udacity.com/#!/rubrics/2724/view 
 	 */
 	@Test
-	public void testRedirection() {
+	public void testRedirection() throws InterruptedException {
 		// Create a test account
 		doMockSignUp("Redirection","Test","RT","123");
-		
+		Thread.sleep(3000);
 		// Check if we have been redirected to the log in page.
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
 	}

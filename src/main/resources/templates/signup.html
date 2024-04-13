@@ -11,7 +11,7 @@
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container justify-content-center w-50 p-3" style="background-color: #eeeeee; margin-top: 5em;">
             <div class="form-group">
-                <label><a th:href="@{'/login'}">Back to Login</a></label>
+                <label><a id="switch-to-login" th:href="@{'/login'}">Back to Login</a></label>
             </div>
 
             <h1 class="display-5">Sign Up</h1>
@@ -19,7 +19,7 @@
                 <div th:if="${isSignUpSuccessful}" id="success-msg" class="alert alert-dark">
                     You successfully signed up! Please continue to the <a>login</a> page.
                 </div>
-                <div th:if="${isSignUpFail}" class="alert alert-danger">
+                <div th:if="${isSignUpFail}" id="fail-msg" class="alert alert-danger">
                     <span th:text="${errMessage}">Example Signup Error Message</span>
                 </div>
                 <div class="form-row">
@@ -78,10 +78,10 @@
 <!--        <script th:src="@{/js/popper.min.js}"></script>-->
 <!--        <script th:src="@{/js/bootstrap.min.js}"></script>-->
 <!--        <script type="text/javascript">-->
-<!--            if ($('#success-msg')) {-->
-<!--                window.setTimeout(function(){-->
-<!--                    window.location.href='/login';-->
-<!--                }, 4000);-->
+<!--            function clearForm() {-->
+<!--                $('#inputFirstName').val('')-->
+<!--                $('#inputLastName').val('')-->
+<!--                $('#inputUsername').val('')-->
 <!--            }-->
 <!--        </script>-->
     </body>

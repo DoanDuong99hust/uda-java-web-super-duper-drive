@@ -57,8 +57,9 @@ public class CredentialController {
     }
 
     @PostMapping("/delete/{id}")
-    public ModelAndView delete(@PathVariable Integer id) {
+    public ModelAndView delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         credentialMapper.delete(id);
-        return new ModelAndView("redirect:/home");
+        redirectAttributes.addFlashAttribute("result", new Result(true, CommonConstant.SUCCESSFUL_SAVED_MESSAGE, "/home"));
+        return new ModelAndView("redirect:/result");
     }
 }

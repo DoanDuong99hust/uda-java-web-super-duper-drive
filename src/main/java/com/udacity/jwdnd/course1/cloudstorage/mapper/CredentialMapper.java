@@ -8,8 +8,8 @@ import java.util.List;
 @Mapper
 public interface CredentialMapper {
 
-    @Select("select * from Credentials")
-    List<Credentials> findAll();
+    @Select("select * from Credentials where userId = #{userId}")
+    List<Credentials> findAllByUserId(Integer userId);
 
     @Select("select * from Credentials where credentialId = #{credentialId}")
     Credentials findById(Integer credentialId);

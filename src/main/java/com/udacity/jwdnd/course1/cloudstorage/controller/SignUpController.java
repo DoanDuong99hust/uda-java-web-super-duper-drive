@@ -70,6 +70,6 @@ public class SignUpController {
         model.addAttribute("isSignUpFail", isSignUpFail);
         model.addAttribute("errMessage", errMessage);
 
-        return new ModelAndView(isSignUpSuccessful ? "redirect:/login" : "signup");
+        return new ModelAndView("signup");
     }
 }
