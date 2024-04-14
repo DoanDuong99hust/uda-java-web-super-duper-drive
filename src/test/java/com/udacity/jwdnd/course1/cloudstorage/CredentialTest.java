@@ -115,8 +115,6 @@ public class CredentialTest {
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
         Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 
-        WebElement switchToLogin = driver.findElement(By.id("switch-to-login"));
-        switchToLogin.click();
         LoginForm.login(username, password, webDriverWait, new LoginForm(driver));
 
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));

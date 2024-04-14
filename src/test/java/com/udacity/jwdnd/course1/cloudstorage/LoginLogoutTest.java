@@ -1,10 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -32,8 +29,13 @@ public class LoginLogoutTest {
         this.driver = new ChromeDriver();
     }
 
+    @AfterEach
+    public void afterEach() {
+        this.driver.close();
+    }
+
     @Test
-    void login_signedInUsernameAndPassword_loginSuccessfully() throws InterruptedException {
+    void login_signedInUsernameAndPassword_loginSuccessfully() {
 
         WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
         doMockSignUpAndLogin("du", "do", "ad", "pass" , webDriverWait);
@@ -80,7 +82,5 @@ public class LoginLogoutTest {
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
         Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 
-        WebElement switchToLogin = driver.findElement(By.id("switch-to-login"));
-        switchToLogin.click();
     }
 }

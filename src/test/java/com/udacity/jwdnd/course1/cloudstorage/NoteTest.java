@@ -1,9 +1,5 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
-import com.udacity.jwdnd.course1.cloudstorage.entity.Notes;
-import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
-import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
-import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -12,9 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -124,8 +118,6 @@ public class NoteTest {
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
         Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 
-        WebElement switchToLogin = driver.findElement(By.id("switch-to-login"));
-        switchToLogin.click();
         LoginForm.login(username, password, webDriverWait, new LoginForm(driver));
 
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));

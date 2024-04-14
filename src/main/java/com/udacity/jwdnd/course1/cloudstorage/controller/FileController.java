@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,25 +44,34 @@ public class FileController {
     @PostMapping("/upload")
     public ModelAndView upload(@RequestParam("fileUpload") MultipartFile inputFile,
                                Authentication authentication,
-                               RedirectAttributes redirectAttributes) throws IOException {
+                               RedirectAttributes redirectAttributes,
+                               Model model) throws IOException {
         Result result;
-        InputStream fileInputStream = inputFile.getInputStream();
-        try {
-            Users user = userMapper.findByUsername(authentication.getName());
-            Files file = fileMapper.findByName(inputFile.getOriginalFilename());
-            if (file == null) {
-                fileMapper.insert(new Files(inputFile.getOriginalFilename(), inputFile.getContentType(), inputFile.getSize(),
-                        fileInputStream.readAllBytes(), user.getUserId()));
-                result = new Result(true, CommonConstant.SUCCESSFUL_SAVED_MESSAGE, "/home");
-            } else {
-                result = new Result(false, "Filename already existed!", "/home");
+        String view;
+        if (!inputFile.isEmpty()) {
+            InputStream fileInputStream = inputFile.getInputStream();
+            try {
+                Users user = userMapper.findByUsername(authentication.getName());
+                Files file = fileMapper.findByName(inputFile.getOriginalFilename());
+                if (file == null) {
+                    fileMapper.insert(new Files(inputFile.getOriginalFilename(), inputFile.getContentType(), inputFile.getSize(),
+                            fileInputStream.readAllBytes(), user.getUserId()));
+                    result = new Result(true, CommonConstant.SUCCESSFUL_SAVED_MESSAGE, "/home");
+                } else {
+                    result = new Result(false, "Filename already existed!", "/home");
+                }
+            } catch (Exception e) {
+                result = new Result(false, e.getMessage(), "/home");
             }
-        } catch (Exception e) {
-            result = new Result(false, e.getMessage(), "/home");
+            view = "redirect:/result";
+            model.addAttribute("isEmptyFile", false);
+            redirectAttributes.addFlashAttribute("result", result);
+        } else {
+            view = "/home";
+            model.addAttribute("isEmptyFile", true);
         }
 
-        redirectAttributes.addFlashAttribute("result", result);
-        return new ModelAndView("redirect:/result");
+        return new ModelAndView(view);
     }
 
     @GetMapping("/download/{id}")

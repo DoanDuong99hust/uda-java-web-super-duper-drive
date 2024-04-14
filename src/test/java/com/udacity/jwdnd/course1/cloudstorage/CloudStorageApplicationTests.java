@@ -1,10 +1,8 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -14,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import java.io.File;
-import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
@@ -95,9 +92,6 @@ class CloudStorageApplicationTests {
 		*/
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
-
-		WebElement switchToLogin = driver.findElement(By.id("switch-to-login"));
-		switchToLogin.click();
 	}
 
 	
@@ -145,7 +139,6 @@ class CloudStorageApplicationTests {
 	public void testRedirection() throws InterruptedException {
 		// Create a test account
 		doMockSignUp("Redirection","Test","RT","123");
-		Thread.sleep(3000);
 		// Check if we have been redirected to the log in page.
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
 	}

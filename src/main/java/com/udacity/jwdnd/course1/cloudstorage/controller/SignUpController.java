@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
@@ -42,8 +42,9 @@ public class SignUpController {
     }
 
     @PostMapping("/sign-up")
-    public ModelAndView processSignUp(@ModelAttribute("users") Users users, Model model,
-                                      HttpServletRequest request) throws NoSuchAlgorithmException {
+    public String processSignUp(@ModelAttribute("users") Users users, Model model,
+                                      HttpServletRequest request,
+                                      RedirectAttributes redirectAttributes) throws NoSuchAlgorithmException {
         String username = users.getUsername();
         String password = users.getPassword();
         String firstName = users.getFirstname();
@@ -66,10 +67,10 @@ public class SignUpController {
             credentialMapper.create(new Credentials(request.getRequestURL().toString(), username, encryptionService.convertKeyByteArrayToString(keyByte), encryptedValue, userId));
             isSignUpSuccessful = true;
         }
-        model.addAttribute("isSignUpSuccessful", isSignUpSuccessful);
+        redirectAttributes.addFlashAttribute("isSignUpSuccessful", isSignUpSuccessful);
         model.addAttribute("isSignUpFail", isSignUpFail);
         model.addAttribute("errMessage", errMessage);
 
-        return new ModelAndView("signup");
+        return isSignUpSuccessful ? "redirect:/login" : "signup";
     }
 }

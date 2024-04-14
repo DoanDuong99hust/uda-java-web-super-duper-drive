@@ -57,12 +57,16 @@ public class SignUpTest {
         WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
         webDriverWait.until(ExpectedConditions.titleContains("Sign Up"));
         SignUpForm signUpForm = new SignUpForm(driver);
-        SignUpForm.signUp("du", "do", "ad", "pass", webDriverWait, signUpForm);
+        SignUpForm.signUp("du", "do", "ad1", "pass", webDriverWait, signUpForm);
+
+        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("switch-to-sign-up")));
+        WebElement element = driver.findElement(By.id("switch-to-sign-up"));
+        element.click();
 
         signUpForm.setFirstName("");
         signUpForm.setLastName("");
         signUpForm.setUsername("");
-        SignUpForm.signUp("eric", "do", "ad", "password", webDriverWait, signUpForm);
+        SignUpForm.signUp("eric", "do", "ad1", "password", webDriverWait, signUpForm);
 
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fail-msg")));
         Assertions.assertTrue(driver.findElement(By.id("fail-msg")).getText().contains("User already existed!"));
